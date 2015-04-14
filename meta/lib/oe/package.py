@@ -22,13 +22,13 @@ def runstrip(arg):
 
     # kernel module    
     if elftype & 16:
-        extraflags = "--strip-debug --remove-section=.comment --remove-section=.note --preserve-dates"
+        extraflags = "--strip-debug --remove-section=.comment --remove-section=.note --preserve-dates --strip-unneeded"
     # .so and shared library
     elif ".so" in file and elftype & 8:
         extraflags = "--remove-section=.comment --remove-section=.note --strip-unneeded"
     # shared or executable:
     elif elftype & 8 or elftype & 4:
-        extraflags = "--remove-section=.comment --remove-section=.note"
+        extraflags = "--remove-section=.comment --remove-section=.note --strip-unneeded"
 
     stripcmd = "'%s' %s '%s'" % (strip, extraflags, file)
     bb.debug(1, "runstrip: %s" % stripcmd)
