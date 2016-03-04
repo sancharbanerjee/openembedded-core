@@ -7,5 +7,5 @@ SRC_URI = "http://www.sqlite.org/2016/sqlite-autoconf-${SQLITE_PV}.tar.gz \
            file://fix-disable-static-shell.patch \
 "
 
-SRC_URI[md5sum] = "a6cdc3e0a6e5087d620037ae0c48720d"
-SRC_URI[sha256sum] = "508d4dcbcf7a7181e95c717a1dc4ae3c0880b3d593be0c4b40abb6c3a0e201fb"
+SRC_URI[md5sum] = "c66b4e9d5ca6cfd15471b5b03fc44537"
+SRC_URI[sha256sum] = "533ff1d0271c2e666f01591271cef01a31648563affa0c95e80ef735077d4377"
