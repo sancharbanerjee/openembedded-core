@@ -540,7 +540,8 @@ python () {
                     raise bb.parse.SkipPackage("incompatible with license %s" % license)
             elif pn in whitelist:
                 if pn in incompatwl:
-                    bb.note("INCLUDING " + pn + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted")
+                    p = d.getVar('P', True)
+                    bb.note("INCLUDING " + p + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted")
 
     needsrcrev = False
     srcuri = d.getVar('SRC_URI', True)
