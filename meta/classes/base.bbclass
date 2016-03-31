@@ -518,7 +518,11 @@ python () {
                     if spdx_license:
                         incompatwl.extend((d.getVar(w + spdx_license, True) or "").split())
 
-            if not pn in whitelist:
+            if pn in whitelist:
+                if pn in incompatwl:
+                    p = d.getVar('P', True)
+                    bb.note("INCLUDING " + p + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted")
+            else:
                 pkgs = d.getVar('PACKAGES', True).split()
                 skipped_pkgs = []
                 unskipped_pkgs = []
@@ -538,10 +542,6 @@ python () {
                 elif all_skipped or incompatible_license(d, bad_licenses):
                     bb.debug(1, "SKIPPING recipe %s because it's %s" % (pn, license))
                     raise bb.parse.SkipPackage("incompatible with license %s" % license)
-            elif pn in whitelist:
-                if pn in incompatwl:
-                    p = d.getVar('P', True)
-                    bb.note("INCLUDING " + p + " as buildable despite INCOMPATIBLE_LICENSE because it has been whitelisted")
 
     needsrcrev = False
     srcuri = d.getVar('SRC_URI', True)
