@@ -7,10 +7,6 @@ def packaged(pkg, d):
 def read_pkgdatafile(fn):
     pkgdata = {}
 
-    def decode(str):
-        c = codecs.getdecoder("string_escape")
-        return c(str)[0]
-
     if os.access(fn, os.R_OK):
         import re
         f = open(fn, 'r')
@@ -20,7 +16,7 @@ def read_pkgdatafile(fn):
         for l in lines:
             m = r.match(l)
             if m:
-                pkgdata[m.group(1)] = decode(m.group(2))
+                pkgdata[m.group(1)] = m.group(2)
 
     return pkgdata
 
