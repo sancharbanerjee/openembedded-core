@@ -1256,13 +1256,18 @@ python emit_pkgdata() {
     import json
 
     def write_if_exists(f, pkg, var):
+        def encode(str):
+            import codecs
+            c = codecs.getencoder("unicode_escape")
+            return c(str)[0].decode("latin1")
+
         val = d.getVar('%s_%s' % (var, pkg), True)
         if val:
-            f.write('%s_%s: %s\n' % (var, pkg, val))
+            f.write('%s_%s: %s\n' % (var, pkg, encode(val)))
             return val
         val = d.getVar('%s' % (var), True)
         if val:
-            f.write('%s: %s\n' % (var, val))
+            f.write('%s: %s\n' % (var, encode(val)))
         return val
 
     def write_extra_pkgs(variants, pn, packages, pkgdatadir):
