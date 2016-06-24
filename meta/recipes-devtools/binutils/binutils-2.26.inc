@@ -37,6 +37,7 @@ SRC_URI = "\
      file://0015-allow-zero-length-elements.patch \
      file://aarch64-tls.patch \
      file://0015-Refine-.cfi_sections-check-to-only-consider-compact-.patch \
+     file://MIPS-GAS-Fix-an-ISA-override-not-lifting-ABI-restrictions.patch \
 "
 S  = "${WORKDIR}/git"
 
