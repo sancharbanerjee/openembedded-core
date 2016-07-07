@@ -395,16 +395,20 @@ python () {
         rm_tmp_images = set()
         def gen_conversion_cmds(bt):
             for ctype in ctypes:
-                if bt.endswith("." + ctype):
+                if bt[bt.find('.') + 1:] == ctype:
                     type = bt[0:-len(ctype) - 1]
                     if type.startswith("debugfs_"):
                         type = type[8:]
                     # Create input image first.
                     gen_conversion_cmds(type)
                     localdata.setVar('type', type)
-                    cmds.append("\t" + localdata.getVar("COMPRESS_CMD_" + ctype, True))
+                    cmd = "\t" + localdata.getVar("COMPRESS_CMD_" + ctype, True)
+                    if cmd not in cmds:
+                        cmds.append(cmd)
                     vardeps.add('COMPRESS_CMD_' + ctype)
-                    subimages.append(type + "." + ctype)
+                    subimage = type + "." + ctype
+                    if subimage not in subimages:
+                        subimages.append(subimage)
                     if type not in alltypes:
                         rm_tmp_images.add(localdata.expand("${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${type}"))
 
