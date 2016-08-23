@@ -14,6 +14,7 @@ INHIBIT_DEFAULT_DEPS = "1"
 KERNEL_IMAGETYPE ?= "zImage"
 INITRAMFS_IMAGE ?= ""
 INITRAMFS_IMAGE_BUNDLE ?= ""
+INITRAMFS_IMAGE_TYPE ?= ""
 
 # KERNEL_VERSION is extracted from source code. It is evaluated as
 # None for the first parsing, since the code has not been fetched.
@@ -196,7 +197,6 @@ INITRAMFS_BASE_NAME[vardepsexclude] = "DATETIME"
 do_bundle_initramfs () {
 	if [ ! -z "${INITRAMFS_IMAGE}" -a x"${INITRAMFS_IMAGE_BUNDLE}" = x1 ]; then
 		echo "Creating a kernel image with a bundled initramfs..."
-		copy_initramfs
 		# Backing up kernel image relies on its type(regular file or symbolic link)
 		tmp_path=""
 		for type in ${KERNEL_IMAGETYPES} ; do
@@ -210,7 +210,12 @@ do_bundle_initramfs () {
 				tmp_path=$tmp_path" "$type"##"
 			fi
 		done
-		use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
+		if [ ! -z "${INITRAMFS_IMAGE_TYPE}" ]; then
+			use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${DEPLOY_DIR_IMAGE}/${INITRAMFS_IMAGE}-${MACHINE}.${INITRAMFS_IMAGE_TYPE}
+		else
+			copy_initramfs
+			use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
+		fi
 		kernel_do_compile
 		# Restoring kernel image
 		for tp in $tmp_path ; do
