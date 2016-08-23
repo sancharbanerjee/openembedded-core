@@ -13,7 +13,6 @@ INHIBIT_DEFAULT_DEPS = "1"
 
 KERNEL_IMAGETYPE ?= "zImage"
 INITRAMFS_IMAGE ?= ""
-INITRAMFS_TASK ?= ""
 INITRAMFS_IMAGE_BUNDLE ?= ""
 
 python __anonymous () {
@@ -26,14 +25,6 @@ python __anonymous () {
     image = d.getVar('INITRAMFS_IMAGE', True)
     if image:
         d.appendVarFlag('do_bundle_initramfs', 'depends', ' ${INITRAMFS_IMAGE}:do_image_complete')
-
-    # NOTE: setting INITRAMFS_TASK is for backward compatibility
-    #       The preferred method is to set INITRAMFS_IMAGE, because
-    #       this INITRAMFS_TASK has circular dependency problems
-    #       if the initramfs requires kernel modules
-    image_task = d.getVar('INITRAMFS_TASK', True)
-    if image_task:
-        d.appendVarFlag('do_configure', 'depends', ' ${INITRAMFS_TASK}')
 }
 
 # Here we pull in all various kernel image types which we support.
@@ -201,12 +192,6 @@ kernel_do_compile() {
 	# different initramfs image.  The way to do that in the kernel
 	# is to specify:
 	# make ...args... CONFIG_INITRAMFS_SOURCE=some_other_initramfs.cpio
-	if [ "$use_alternate_initrd" = "" ] && [ "${INITRAMFS_TASK}" != "" ] ; then
-		# The old style way of copying an prebuilt image and building it
-		# is turned on via INTIRAMFS_TASK != ""
-		copy_initramfs
-		use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
-	fi
 	oe_runmake ${KERNEL_IMAGETYPE_FOR_MAKE} ${KERNEL_ALT_IMAGETYPE} CC="${KERNEL_CC}" LD="${KERNEL_LD}" ${KERNEL_EXTRA_ARGS} $use_alternate_initrd
 	if test "${KERNEL_IMAGETYPE_FOR_MAKE}.gz" = "${KERNEL_IMAGETYPE}"; then
 		gzip -9c < "${KERNEL_IMAGETYPE_FOR_MAKE}" > "${KERNEL_OUTPUT}"
