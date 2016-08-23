@@ -14,6 +14,7 @@ INHIBIT_DEFAULT_DEPS = "1"
 KERNEL_IMAGETYPE ?= "zImage"
 INITRAMFS_IMAGE ?= ""
 INITRAMFS_IMAGE_BUNDLE ?= ""
+INITRAMFS_IMAGE_TYPE ?= ""
 
 python __anonymous () {
     import re
@@ -162,11 +163,15 @@ INITRAMFS_BASE_NAME[vardepsexclude] = "DATETIME"
 do_bundle_initramfs () {
 	if [ ! -z "${INITRAMFS_IMAGE}" -a x"${INITRAMFS_IMAGE_BUNDLE}" = x1 ]; then
 		echo "Creating a kernel image with a bundled initramfs..."
-		copy_initramfs
 		if [ -e ${KERNEL_OUTPUT} ] ; then
 			mv -f ${KERNEL_OUTPUT} ${KERNEL_OUTPUT}.bak
 		fi
-		use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
+		if [ ! -z "${INITRAMFS_IMAGE_TYPE}" ]; then
+			use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${DEPLOY_DIR_IMAGE}/${INITRAMFS_IMAGE}-${MACHINE}.${INITRAMFS_IMAGE_TYPE}
+		else
+			copy_initramfs
+			use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
+		fi
 		kernel_do_compile
 		mv -f ${KERNEL_OUTPUT} ${KERNEL_OUTPUT}.initramfs
 		mv -f ${KERNEL_OUTPUT}.bak ${KERNEL_OUTPUT}
