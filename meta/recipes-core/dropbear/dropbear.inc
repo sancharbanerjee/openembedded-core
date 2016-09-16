@@ -17,6 +17,7 @@ SRC_URI = "http://matt.ucc.asn.au/dropbear/releases/dropbear-${PV}.tar.bz2 \
            file://0003-configure.patch \
            file://0004-fix-2kb-keys.patch \
            file://0007-dropbear-fix-for-x32-abi.patch \
+           file://fix-libtomcrypt-libtommath-ordering.patch \
            file://CVE-2016-7406.patch \
            file://CVE-2016-7407.patch \
            file://CVE-2016-7408.patch \
