@@ -163,7 +163,13 @@ INITRAMFS_BASE_NAME[vardepsexclude] = "DATETIME"
 do_bundle_initramfs () {
 	if [ ! -z "${INITRAMFS_IMAGE}" -a x"${INITRAMFS_IMAGE_BUNDLE}" = x1 ]; then
 		echo "Creating a kernel image with a bundled initramfs..."
-		if [ -e ${KERNEL_OUTPUT} ] ; then
+		# Backing up kernel image relies on its type(regular file or symbolic link)
+		realpath=""
+		if [ -h ${KERNEL_OUTPUT} ] ; then
+			linkpath=`readlink -n ${KERNEL_OUTPUT}`
+			realpath=`readlink -fn ${KERNEL_OUTPUT}`
+			mv -f $realpath $realpath.bak
+		elif [ -f ${KERNEL_OUTPUT} ] ; then
 			mv -f ${KERNEL_OUTPUT} ${KERNEL_OUTPUT}.bak
 		fi
 		if [ ! -z "${INITRAMFS_IMAGE_TYPE}" ]; then
@@ -173,8 +179,17 @@ do_bundle_initramfs () {
 			use_alternate_initrd=CONFIG_INITRAMFS_SOURCE=${B}/usr/${INITRAMFS_IMAGE}-${MACHINE}.cpio
 		fi
 		kernel_do_compile
-		mv -f ${KERNEL_OUTPUT} ${KERNEL_OUTPUT}.initramfs
-		mv -f ${KERNEL_OUTPUT}.bak ${KERNEL_OUTPUT}
+		# Restoring kernel image
+		if [ -n "$realpath" ]; then
+			mv -f $realpath $realpath.initramfs
+			mv -f $realpath.bak $realpath
+			ln -sf $linkpath.initramfs ${B}/${KERNEL_OUTPUT}.initramfs
+		else
+			mv -f ${KERNEL_OUTPUT} ${KERNEL_OUTPUT}.initramfs
+			if [ -f ${KERNEL_OUTPUT}.bak ] ; then
+				mv -f ${KERNEL_OUTPUT}.bak ${KERNEL_OUTPUT}
+			fi
+		fi
 		# Update install area
 		echo "There is kernel image bundled with initramfs: ${B}/${KERNEL_OUTPUT}.initramfs"
 		install -m 0644 ${B}/${KERNEL_OUTPUT}.initramfs ${D}/boot/${KERNEL_IMAGETYPE}-initramfs-${MACHINE}.bin
