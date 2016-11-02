@@ -23,3 +23,4 @@ EOF
 		chmod +x ${WORKDIR}/python
 	fi
 }
+CFLAGS_append_libc-musl = " -Drpl_gettimeofday=gettimeofday"
