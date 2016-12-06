@@ -799,13 +799,19 @@ def sstate_checkhashes(sq_fn, sq_task, sq_hash, sq_hashfn, d, siginfo=False):
                 fetcher = bb.fetch2.Fetch(srcuri.split(), localdata2,
                             connection_cache=thread_worker.connection_cache)
                 fetcher.checkstatus()
-                bb.debug(2, "SState: Successful fetch test for %s" % srcuri)
+                if localdata.getVar('SSTATE_MIRROR_VERBOSE', True) == "1":
+                    bb.note("SState: Successful fetch test for %s" % srcuri)
+                else:
+                    bb.debug(2, "SState: Successful fetch test for %s" % srcuri)
                 ret.append(task)
                 if task in missed:
                     missed.remove(task)
             except:
                 missed.append(task)
-                bb.debug(2, "SState: Unsuccessful fetch test for %s" % srcuri)
+                if localdata.getVar('SSTATE_MIRROR_VERBOSE', True) == "1":
+                    bb.note("SState: Unsuccessful fetch test for %s" % srcuri)
+                else:
+                    bb.debug(2, "SState: Unsuccessful fetch test for %s" % srcuri)
                 pass     
 
         tasklist = []
