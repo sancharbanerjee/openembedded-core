@@ -920,10 +920,12 @@ def check_sanity_everybuild(status, d):
         with open(checkfile, "w") as f:
             f.write(tmpdir)
 
-    # Check /bin/sh links to dash or bash
+    # Check /bin/sh links to bash
+    # By default oe-core allows dash here, but unfortunately some of our 'vendor'
+    # recipes are known to have build issues with dash, so allow bash only.
     real_sh = os.path.realpath('/bin/sh')
-    if not real_sh.endswith('/dash') and not real_sh.endswith('/bash'):
-        status.addresult("Error, /bin/sh links to %s, must be dash or bash\n" % real_sh)
+    if not real_sh.endswith('/bash'):
+        status.addresult("Error, /bin/sh links to %s\n    Using dash as /bin/sh can causes build problems, especially with 'vendor' recipes.\n    Please use bash instead (e.g. 'dpkg-reconfigure dash' on an Ubuntu systems).\n" % real_sh)
 
 def check_sanity(sanity_data):
     class SanityStatus(object):
