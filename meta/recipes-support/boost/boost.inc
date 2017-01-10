@@ -25,9 +25,15 @@ BOOST_LIBS = "\
 	"
 
 # optional boost-python library
-PACKAGECONFIG ??= ""
+PACKAGECONFIG ??= "locale"
+PACKAGECONFIG[locale] = ",,icu"
 PACKAGECONFIG[python] = ",,python python3"
-BOOST_LIBS += "${@bb.utils.contains('PACKAGECONFIG', 'python', 'python python3', '', d)}"
+
+BOOST_LIBS += "\
+    ${@bb.utils.contains('PACKAGECONFIG', 'locale', 'locale', '', d)} \
+    ${@bb.utils.contains('PACKAGECONFIG', 'python', 'python python3', '', d)} \
+"
+
 inherit python-dir
 PYTHON_ROOT = "${STAGING_DIR_HOST}/${prefix}"
 
@@ -54,6 +60,7 @@ python __anonymous () {
 }
 
 # Override the contents of specific packages
+FILES_${PN}-locale = "${libdir}/libboost_locale.so.*"
 FILES_boost-serialization = "${libdir}/libboost_serialization*.so.* \
 	${libdir}/libboost_wserialization*.so.*"
 FILES_boost-test = "${libdir}/libboost_prg_exec_monitor*.so.* \
