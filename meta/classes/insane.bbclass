@@ -32,7 +32,7 @@ QA_SANE = "True"
 WARN_QA ?= "ldflags useless-rpaths rpaths staticdev libdir xorg-driver-abi \
             textrel already-stripped incompatible-license files-invalid \
             installed-vs-shipped compile-host-path install-host-path \
-            pn-overrides infodir \
+            pn-overrides infodir dev-elf \
             "
 ERROR_QA ?= "dev-so debug-deps dev-deps debug-files arch pkgconfig la \
             perms dep-cmp pkgvarcheck perm-config perm-line perm-link \
@@ -230,6 +230,17 @@ def package_qa_check_dev(path, name, d, elf, messages):
 
     if not name.endswith("-dev") and not name.endswith("-dbg") and not name.endswith("-ptest") and not name.startswith("nativesdk-") and path.endswith(".so") and os.path.islink(path):
         messages.append("non -dev/-dbg/-nativesdk package contains symlink .so: %s path '%s'" % \
+                 (name, package_qa_clean_path(path,d)))
+
+QAPATHTEST[dev-elf] = "package_qa_check_dev_elf"
+def package_qa_check_dev_elf(path, name, d, elf, messages):
+    """
+    Check that -dev doesn't contain real shared libraries.  The test has to
+    check that the file is not a link and is an ELF object as some recipes
+    install link-time .so files that are linker scripts.
+    """
+    if name.endswith("-dev") and path.endswith(".so") and not os.path.islink(path) and elf:
+        messages.append("-dev package contains non-symlink .so: %s path '%s'" % \
                  (name, package_qa_clean_path(path,d)))
 
 QAPATHTEST[staticdev] = "package_qa_check_staticdev"
