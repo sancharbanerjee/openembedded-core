@@ -5,6 +5,7 @@ LICENSE = "(GPL-2+ & Elfutils-Exception)"
 LIC_FILES_CHKSUM = "file://COPYING;md5=0636e73ff0215e8d672dc4c32c317bb3\
                     file://EXCEPTION;md5=570adcb0c1218ab57f2249c67d0ce417"
 DEPENDS = "libtool bzip2 zlib virtual/libintl"
+DEPENDS_append_libc-musl = " argp-standalone fts "
 
 PR = "r11"
 
@@ -38,6 +39,9 @@ SRC_URI += "\
 # Only apply when building uclibc based target recipe
 SRC_URI_append_libc-uclibc = " file://uclibc-support-for-elfutils-0.148.patch"
 
+# Only apply when building musl based target recipe
+SRC_URI_append_libc-musl = " file://musl-support-for-elfutils-0.148.patch"
+
 # The buildsystem wants to generate 2 .h files from source using a binary it just built,
 # which can not pass the cross compiling, so let's work around it by adding 2 .h files
 # along with the do_configure_prepend()
@@ -62,6 +66,7 @@ do_configure_prepend() {
 # but some recipes e.g. gcc 4.5 depends on libelf so we
 # build only libelf for uclibc case
 
+EXTRA_OEMAKE_libc-musl = "-C libelf"
 EXTRA_OEMAKE_libc-uclibc = "-C libelf"
 EXTRA_OEMAKE_class-native = ""
 EXTRA_OEMAKE_class-nativesdk = ""
