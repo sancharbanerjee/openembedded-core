@@ -2,13 +2,13 @@ require bluez5.inc
 
 REQUIRED_DISTRO_FEATURES = "bluez5"
 
-SRC_URI[md5sum] = "cc8c53133d5be0d6c126e00cf2529028"
-SRC_URI[sha256sum] = "4f166fed80fc017396d6f2b3cae5185520875ab456d1c74d6b4eaa4da0e16109"
+SRC_URI[md5sum] = "20d936917afc7e1ffa091f5213081c55"
+SRC_URI[sha256sum] = "4cacb00703a6bc149cb09502257d321597d43952374a16f3558766ffa85364e9"
 
 # noinst programs in Makefile.tools that are conditional on READLINE
 # support
 NOINST_TOOLS_READLINE ?= " \
-    attrib/gatttool \
+    ${@bb.utils.contains('PACKAGECONFIG', 'deprecated', 'attrib/gatttool', '', d)} \
     tools/obex-client-tool \
     tools/obex-server-tool \
     tools/bluetooth-player \
@@ -16,12 +16,13 @@ NOINST_TOOLS_READLINE ?= " \
     tools/btmgmt \
 "
 
-# noinst programs in Makefile.tools that are conditional on EXPERIMENTAL
+# noinst programs in Makefile.tools that are conditional on TESTING
 # support
-NOINST_TOOLS_EXPERIMENTAL ?= " \
+NOINST_TOOLS_TESTING ?= " \
     emulator/btvirt \
     emulator/b1ee \
     emulator/hfp \
+    peripheral/btsensor \
     tools/3dsp \
     tools/mgmt-tester \
     tools/gap-tester \
@@ -30,6 +31,13 @@ NOINST_TOOLS_EXPERIMENTAL ?= " \
     tools/smp-tester \
     tools/hci-tester \
     tools/rfcomm-tester \
+    tools/bnep-tester \
+    tools/userchan-tester \
+"
+
+# noinst programs in Makefile.tools that are conditional on TOOLS
+# support
+NOINST_TOOLS_BT ?= " \
     tools/bdaddr \
     tools/avinfo \
     tools/avtest \
@@ -39,17 +47,22 @@ NOINST_TOOLS_EXPERIMENTAL ?= " \
     tools/hcieventmask \
     tools/hcisecfilter \
     tools/btinfo \
-    tools/btattach \
     tools/btsnoop \
     tools/btproxy \
     tools/btiotest \
+    tools/bneptest \
     tools/mcaptest \
     tools/cltest \
     tools/oobtest \
     tools/seq2bseq \
+    tools/nokfw \
+    tools/create-image \
+    tools/eddystone \
     tools/ibeacon \
     tools/btgatt-client \
     tools/btgatt-server \
+    tools/test-runner \
+    tools/check-selftest \
     tools/gatt-service \
     profiles/iap/iapd \
 "
