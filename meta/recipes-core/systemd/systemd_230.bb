@@ -4,7 +4,7 @@ PROVIDES = "udev"
 
 PE = "1"
 
-DEPENDS = "kmod docbook-sgml-dtd-4.1-native intltool-native gperf-native acl readline libcap libcgroup qemu-native util-linux"
+DEPENDS = "kmod intltool-native gperf-native acl readline libcap libcgroup qemu-native util-linux"
 
 SECTION = "base/shell"
 
@@ -38,13 +38,35 @@ SRC_URI += " \
            file://CVE-2016-7795.patch \
            file://validate-user.patch \
 "
+SRC_URI_append_libc-musl = " \
+           file://0001-shared-missing.h-check-for-missing-canonicalize_file.patch \
+           file://0002-shared-missing.h-check-for-missing-strndupa.patch \
+           file://0003-udevadm-hwdb-don-t-use-glibc-specific-qsort_r.patch \
+           file://0004-hwdb-don-t-use-glibc-specific-qsort_r.patch \
+           file://0005-don-t-fail-if-GLOB_BRACE-is-not-defined.patch \
+           file://0006-shared-missing.h-check-for-missing-__compar_fn_t-typ.patch \
+           file://0007-shared-utmp-wtmp-don-t-fail-if-libc-doesn-t-support-.patch \
+           file://0008-add-fallback-parse_printf_format-implementation.patch \
+           file://0009-fix-includes.patch \
+           file://0010-check-for-_POSIX_C_SOURCE-instead-of-__USE_POSIX.patch \
+           file://0011-assigning-stdout-and-stderr-is-not-allowed.patch \
+           file://0012-tmpfiles.c-disable-use-of-GLOB_ALTDIRFUNC-HACK.patch \
+           file://0013-netlink-types.c-include-netinet-if_ether.h-before-li.patch \
+           file://0014-ethtool-util.c-include-netinet-if_ether.h-before-lin.patch \
+           file://0015-fix-misc-missing-includes.patch \
+           file://0016-replace-glibc-specific-random_r-with-jrand48.patch \
+           file://0017-disable-test-nss.patch \
+           file://0018-don-t-pass-AT_SYMLINK_NOFOLLOW-flag-to-faccessat.patch \
+"
 SRC_URI_append_libc-uclibc = "\
            file://0002-units-Prefer-getty-to-agetty-in-console-setup-system.patch \
 "
 SRC_URI_append_qemuall = " file://0001-core-device.c-Change-the-default-device-timeout-to-2.patch"
 
+USE_LDCONFIG ?= "1"
+
 PACKAGECONFIG ??= "xz \
-                   ldconfig \
+                   ${@base_conditional('USE_LDCONFIG', '1', 'ldconfig', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'pam', 'pam', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'x11', 'xkbcommon', '', d)} \
                    ${@bb.utils.contains('DISTRO_FEATURES', 'selinux', 'selinux', '', d)} \
@@ -69,6 +91,7 @@ PACKAGECONFIG ??= "xz \
                    utmp \
                    polkit \
 "
+PACKAGECONFIG_remove_libc-musl = "resolved"
 PACKAGECONFIG_remove_libc-musl = "selinux"
 PACKAGECONFIG_remove_libc-musl = "smack"
 
@@ -592,8 +615,4 @@ pkg_prerm_udev-hwdb () {
 python () {
     if not bb.utils.contains ('DISTRO_FEATURES', 'systemd', True, False, d):
         raise bb.parse.SkipPackage("'systemd' not in DISTRO_FEATURES")
-
-    import re
-    if re.match('.*musl*', d.getVar('TARGET_OS', True)) != None:
-        raise bb.parse.SkipPackage("Not _yet_ supported on musl based targets")
 }
