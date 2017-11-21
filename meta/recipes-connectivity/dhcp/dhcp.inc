@@ -49,7 +49,7 @@ EXTRA_OECONF = "--with-srv-lease-file=${localstatedir}/lib/dhcp/dhcpd.leases \
                 --with-cli-lease-file=${localstatedir}/lib/dhcp/dhclient.leases \
                 --with-cli6-lease-file=${localstatedir}/lib/dhcp/dhclient6.leases \
                 --with-libbind=${STAGING_LIBDIR}/ \
-                --enable-paranoia \
+                --enable-paranoia --disable-static \
                 --with-randomdev=/dev/random \
                "
 
@@ -91,11 +91,13 @@ do_install_append () {
 	sed -i -e 's,@BASE_SBINDIR@,${base_sbindir},g' ${D}${systemd_unitdir}/system/dhclient.service
 }
 
-PACKAGES += "dhcp-server dhcp-server-config dhcp-client dhcp-relay dhcp-omshell"
+PACKAGES += "dhcp-libs dhcp-server dhcp-server-config dhcp-client dhcp-relay dhcp-omshell"
 
 PACKAGES_remove = "${PN}"
 RDEPENDS_${PN}-dev = ""
 RDEPENDS_${PN}-staticdev = ""
+
+FILES_${PN}-libs = "${libdir}/libdhcpctl.so.0* ${libdir}/libomapi.so.0*"
 
 FILES_${PN}-server = "${sbindir}/dhcpd ${sysconfdir}/init.d/dhcp-server"
 RRECOMMENDS_${PN}-server = "dhcp-server-config"
